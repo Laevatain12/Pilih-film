@@ -15,6 +15,7 @@
             --accent-pink: #ff1493;
             --text-color: #4a4a4a;
             --wa-green: #25D366;
+            --gold-star: #ff9f43;
         }
 
         body {
@@ -187,13 +188,31 @@
             flex-shrink: 0;
         }
 
+        .movie-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            margin-left: 12px;
+        }
+
         .movie-title {
             font-size: 14px;
             font-weight: 600;
             color: #333;
-            flex-grow: 1;
-            margin-left: 12px;
             line-height: 1.3;
+        }
+
+        .recommend-badge {
+            display: inline-block;
+            font-size: 10px;
+            background: #fff3d6;
+            color: #d97706;
+            border: 1px solid #fcd34d;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 4px;
+            width: fit-content;
         }
 
         .synopsis-toggle {
@@ -383,66 +402,78 @@
             { 
                 title: "Kiki delivery service", 
                 img: "Kiki's_Delivery_Service_(Movie).jpg",
-                synopsis: "Penyihir muda Kiki pindah ke kota baru bersama kucingnya untuk belajar mandiri dan membuka jasa pengiriman terbang."
+                synopsis: "Penyihir muda Kiki pindah ke kota baru bersama kucingnya untuk belajar mandiri dan membuka jasa pengiriman terbang.",
+                isRecommend: true
             },
             { 
                 title: "Hyakuemu", 
                 img: "hyakkuemu.jpeg",
-                synopsis: "Kisah perjuangan, rivalitas, dan tekanan mental para atlet lari cepat 100 meter di lintasan."
+                synopsis: "Kisah perjuangan, rivalitas, dan tekanan mental para atlet lari cepat 100 meter di lintasan.",
+                isRecommend: true
             },
             { 
                 title: "Ghost in the shell", 
                 img: "ghost in thhe shell.jpg",
-                synopsis: "Mayor Motoko Kusanagi, agen cyborg, memburu peretas misterius sambil mempertanyakan jati diri dan jiwanya."
+                synopsis: "Mayor Motoko Kusanagi, agen cyborg, memburu peretas misterius sambil mempertanyakan jati diri dan jiwanya.",
+                isRecommend: false
             },
             { 
                 title: "Kaguya hime no monogatari", 
                 img: "The_Tale_of_the_Princess_Kaguya_(poster).jpg",
-                synopsis: "Anak perempuan ajaib dari batang bambu tumbuh menjadi putri cantik yang menyimpan rahasia asal-usul dari Bulan."
+                synopsis: "Anak perempuan ajaib dari batang bambu tumbuh menjadi putri cantik yang menyimpan rahasia asal-usul dari Bulan.",
+                isRecommend: false
             }
         ],
         HORROR: [
             { 
                 title: "Ju on", 
                 img: "juon.jpg",
-                synopsis: "Kutukan arwah penasaran Kayako dan Toshio yang meneror siapa saja yang melangkah masuk ke rumah pembunuhan tersebut."
+                synopsis: "Kutukan arwah penasaran Kayako dan Toshio yang meneror siapa saja yang melangkah masuk ke rumah pembunuhan tersebut.",
+                isRecommend: true
             },
             { 
                 title: "Oldboys", 
                 img: "oldboy.jpg",
-                synopsis: "Seorang pria mendadak dibebaskan setelah dikurung 15 tahun tanpa alasan dan diberi 5 hari mencari penculiknya."
+                synopsis: "Seorang pria mendadak dibebaskan setelah dikurung 15 tahun tanpa alasan dan diberi 5 hari mencari penculiknya.",
+                isRecommend: false
             },
             { 
                 title: "A silence of the lamb", 
                 img: "a silence of the lambs.jpg",
-                synopsis: "Agen muda FBI meminta bantuan kanibal jenius Dr. Hannibal Lecter untuk memburu pembunuhan berantai lain."
+                synopsis: "Agen muda FBI meminta bantuan kanibal jenius Dr. Hannibal Lecter untuk memburu pembunuhan berantai lain.",
+                isRecommend: true
             },
             { 
                 title: "The Cabin In The wood", 
                 img: "the cabin in the wood.jpg",
-                synopsis: "Liburan 5 mahasiswa di kabin terpencil berubah jadi teror monster yang dikendalikan oleh organisasi rahasia."
+                synopsis: "Liburan 5 mahasiswa di kabin terpencil berubah jadi teror monster yang dikendalikan oleh organisasi rahasia.",
+                isRecommend: false
             }
         ],
         ROMANCE: [
             { 
                 title: "Eternal sunshine of the spotless mind", 
                 img: "eternal.jpg",
-                synopsis: "Pasangan yang patah hati memilih prosedur medis eksperimental untuk menghapus ingatan tentang satu sama lain."
+                synopsis: "Pasangan yang patah hati memilih prosedur medis eksperimental untuk menghapus ingatan tentang satu sama lain.",
+                isRecommend: true
             },
             { 
                 title: "The notebook", 
                 img: "notebook.jpg",
-                synopsis: "Kisah cinta abadi antara Noah dan Allie yang terhalang beda kasta sosial dan Perang Dunia II."
+                synopsis: "Kisah cinta abadi antara Noah dan Allie yang terhalang beda kasta sosial dan Perang Dunia II.",
+                isRecommend: true
             },
             { 
                 title: "Forest gump", 
                 img: "forrest gump.jpg",
-                synopsis: "Perjalanan hidup pria berhati tulus yang tanpa sengaja terlibat peristiwa bersejarah sambil mencintai teman lamanya."
+                synopsis: "Perjalanan hidup pria berhati tulus yang tanpa sengaja terlibat peristiwa bersejarah sambil mencintai teman lamanya.",
+                isRecommend: false
             },
             { 
                 title: "Le fabuleux destin d'Amélie Poulain", 
                 img: "fitgirl.jpg",
-                synopsis: "Pelayan pemalu di Paris yang diam-diam membantu kebahagiaan orang lain sampai akhirnya menemukan cintanya sendiri."
+                synopsis: "Pelayan pemalu di Paris yang diam-diam membantu kebahagiaan orang lain sampai akhirnya menemukan cintanya sendiri.",
+                isRecommend: false
             }
         ]
     };
@@ -479,12 +510,20 @@
                 
             let isChecked = userData.selections[cat].some(selected => selected.title === movie) ? "checked" : "";
             
+            // Tampilkan badge khusus jika merupakan rekomendasi Aldo
+            let recommendBadge = item.isRecommend 
+                ? `<span class="recommend-badge">⭐ Aldo's Recommend</span>` 
+                : ``;
+
             html += `
                 <div class="movie-card">
                     <div class="movie-card-header" onclick="toggleMovieCheckbox(this)">
                         <input type="checkbox" value="${movie}" ${isChecked} onchange="event.stopPropagation()">
                         ${imageTag}
-                        <span class="movie-title">${movie}</span>
+                        <div class="movie-info">
+                            <span class="movie-title">${movie}</span>
+                            ${recommendBadge}
+                        </div>
                     </div>
                     <span class="synopsis-toggle" onclick="toggleSynopsis('${cat}_syn_${idx}')">📖 Lihat Sinopsis</span>
                     <div id="${cat}_syn_${idx}" class="synopsis-text">${item.synopsis}</div>
