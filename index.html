@@ -14,6 +14,7 @@
             --dark-pink: #c71585;
             --accent-pink: #ff1493;
             --text-color: #4a4a4a;
+            --wa-green: #25D366;
         }
 
         body {
@@ -105,6 +106,11 @@
             transform: scale(0.98);
         }
 
+        .btn-wa {
+            background: linear-gradient(135deg, #25D366, #128C7E) !important;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3) !important;
+        }
+
         .category-grid {
             display: grid;
             gap: 12px;
@@ -149,10 +155,13 @@
             padding: 12px 15px;
             border-radius: 12px;
             margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .movie-card-header {
             display: flex;
             align-items: center;
             cursor: pointer;
-            transition: 0.2s;
         }
 
         .movie-card input[type="checkbox"] {
@@ -187,6 +196,29 @@
             line-height: 1.3;
         }
 
+        .synopsis-toggle {
+            font-size: 11px;
+            color: var(--dark-pink);
+            cursor: pointer;
+            margin-top: 8px;
+            margin-left: 84px;
+            font-weight: 600;
+            text-decoration: underline;
+            display: inline-block;
+        }
+
+        .synopsis-text {
+            display: none;
+            font-size: 12px;
+            color: #555;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 6px;
+            margin-left: 84px;
+            line-height: 1.4;
+        }
+
         select {
             width: 100%;
             padding: 12px;
@@ -210,12 +242,17 @@
 
         .result-movie-item {
             display: flex;
+            flex-direction: column;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 12px;
+            border-radius: 10px;
+        }
+
+        .result-movie-header {
+            display: flex;
             align-items: center;
             gap: 12px;
-            margin-top: 10px;
-            background: rgba(255, 255, 255, 0.6);
-            padding: 8px 12px;
-            border-radius: 10px;
         }
 
         .result-movie-thumb {
@@ -225,6 +262,14 @@
             border-radius: 6px;
             border: 1px solid var(--light-pink);
             flex-shrink: 0;
+        }
+
+        .result-synopsis {
+            font-size: 11px;
+            color: #666;
+            margin-top: 6px;
+            line-height: 1.3;
+            font-style: italic;
         }
 
         .back-link {
@@ -244,7 +289,7 @@
 <div class="container">
     <!-- SCREEN 1: NAMA -->
     <div id="screenName" class="screen active">
-        <h2>✨ Pink Movie Picker ✨</h2>
+        <h2>✨ Movie Picker ✨</h2>
         <p>Halo! Siapa nama kamu yang mau nonton film hari ini?</p>
         <input type="text" id="userNameInput" placeholder="Ketik nama kamu di sini...">
         <button onclick="saveName()">Mulai Pilih Film 💕</button>
@@ -269,7 +314,6 @@
             </div>
         </div>
         
-        <!-- Tombol Lanjut (awalnya disembunyikan) -->
         <button onclick="goToOrderScreen()" style="background: #20b2aa; margin-top: 20px; display:none;" id="toOrderBtn">Lanjut ke Urutan Tonton ➡️</button>
     </div>
 
@@ -316,7 +360,10 @@
         <h2>🍿 Jadwal <span id="resultName"></span></h2>
         <p>Berikut adalah urutan tonton pilihanmu:</p>
         <div id="finalResultContent"></div>
-        <button onclick="resetAll()" style="background: #ff85a2; margin-top: 20px;">Mulai Dari Awal 🔄</button>
+        
+        <!-- Tombol Kirim WhatsApp -->
+        <button onclick="sendToWhatsApp()" class="btn-wa">Kirim ke WhatsApp 📲</button>
+        <button onclick="resetAll()" style="background: #ff85a2; margin-top: 10px;">Mulai Dari Awal 🔄</button>
     </div>
 </div>
 
@@ -331,25 +378,72 @@
         orders: []
     };
 
-    // Data film lengkap dengan gambar
     const movieData = {
         ANIME: [
-            { title: "Kiki delivery service", img: "Kiki's_Delivery_Service_(Movie).jpg" },
-            { title: "Hyakuemu", img: "hyakkuemu.jpeg" },
-            { title: "Ghost in the shell", img: "ghost in thhe shell.jpg" },
-            { title: "Kaguya hime no monogatari", img: "The_Tale_of_the_Princess_Kaguya_(poster).jpg" }
+            { 
+                title: "Kiki delivery service", 
+                img: "Kiki's_Delivery_Service_(Movie).jpg",
+                synopsis: "Penyihir muda Kiki pindah ke kota baru bersama kucingnya untuk belajar mandiri dan membuka jasa pengiriman terbang."
+            },
+            { 
+                title: "Hyakuemu", 
+                img: "hyakkuemu.jpeg",
+                synopsis: "Kisah perjuangan, rivalitas, dan tekanan mental para atlet lari cepat 100 meter di lintasan."
+            },
+            { 
+                title: "Ghost in the shell", 
+                img: "ghost in thhe shell.jpg",
+                synopsis: "Mayor Motoko Kusanagi, agen cyborg, memburu peretas misterius sambil mempertanyakan jati diri dan jiwanya."
+            },
+            { 
+                title: "Kaguya hime no monogatari", 
+                img: "The_Tale_of_the_Princess_Kaguya_(poster).jpg",
+                synopsis: "Anak perempuan ajaib dari batang bambu tumbuh menjadi putri cantik yang menyimpan rahasia asal-usul dari Bulan."
+            }
         ],
         HORROR: [
-            { title: "Ju on", img: "juon.jpg" },
-            { title: "Oldboys", img: "oldboy.jpg" },
-            { title: "A silence of the lamb", img: "a silence of the lambs.jpg" },
-            { title: "The Cabin In The wood", img: "the cabin in the wood.jpg" }
+            { 
+                title: "Ju on", 
+                img: "juon.jpg",
+                synopsis: "Kutukan arwah penasaran Kayako dan Toshio yang meneror siapa saja yang melangkah masuk ke rumah pembunuhan tersebut."
+            },
+            { 
+                title: "Oldboys", 
+                img: "oldboy.jpg",
+                synopsis: "Seorang pria mendadak dibebaskan setelah dikurung 15 tahun tanpa alasan dan diberi 5 hari mencari penculiknya."
+            },
+            { 
+                title: "A silence of the lamb", 
+                img: "a silence of the lambs.jpg",
+                synopsis: "Agen muda FBI meminta bantuan kanibal jenius Dr. Hannibal Lecter untuk memburu pembunuhan berantai lain."
+            },
+            { 
+                title: "The Cabin In The wood", 
+                img: "the cabin in the wood.jpg",
+                synopsis: "Liburan 5 mahasiswa di kabin terpencil berubah jadi teror monster yang dikendalikan oleh organisasi rahasia."
+            }
         ],
         ROMANCE: [
-            { title: "Eternal sunshine of the spotless mind", img: "eternal.jpg" },
-            { title: "The notebook", img: "notebook.jpg" },
-            { title: "Forest gump", img: "forrest gump.jpg" },
-            { title: "Le fabuleux destin d'Amélie Poulain", img: "fitgirl.jpg" }
+            { 
+                title: "Eternal sunshine of the spotless mind", 
+                img: "eternal.jpg",
+                synopsis: "Pasangan yang patah hati memilih prosedur medis eksperimental untuk menghapus ingatan tentang satu sama lain."
+            },
+            { 
+                title: "The notebook", 
+                img: "notebook.jpg",
+                synopsis: "Kisah cinta abadi antara Noah dan Allie yang terhalang beda kasta sosial dan Perang Dunia II."
+            },
+            { 
+                title: "Forest gump", 
+                img: "forrest gump.jpg",
+                synopsis: "Perjalanan hidup pria berhati tulus yang tanpa sengaja terlibat peristiwa bersejarah sambil mencintai teman lamanya."
+            },
+            { 
+                title: "Le fabuleux destin d'Amélie Poulain", 
+                img: "fitgirl.jpg",
+                synopsis: "Pelayan pemalu di Paris yang diam-diam membantu kebahagiaan orang lain sampai akhirnya menemukan cintanya sendiri."
+            }
         ]
     };
 
@@ -377,7 +471,7 @@
         document.getElementById('categoryTitleModal').innerText = `Kategori: ${cat} 🌸`;
         
         let html = "";
-        movieData[cat].forEach(item => {
+        movieData[cat].forEach((item, idx) => {
             let movie = item.title;
             let imageTag = item.img 
                 ? `<img src="${item.img}" alt="${movie}" class="movie-thumb" onerror="this.outerHTML='<div class=\\'movie-thumb\\'>🎬</div>'">` 
@@ -386,10 +480,14 @@
             let isChecked = userData.selections[cat].some(selected => selected.title === movie) ? "checked" : "";
             
             html += `
-                <div class="movie-card" onclick="toggleMovieCheckbox(this)">
-                    <input type="checkbox" value="${movie}" ${isChecked} onchange="event.stopPropagation()">
-                    ${imageTag}
-                    <span class="movie-title">${movie}</span>
+                <div class="movie-card">
+                    <div class="movie-card-header" onclick="toggleMovieCheckbox(this)">
+                        <input type="checkbox" value="${movie}" ${isChecked} onchange="event.stopPropagation()">
+                        ${imageTag}
+                        <span class="movie-title">${movie}</span>
+                    </div>
+                    <span class="synopsis-toggle" onclick="toggleSynopsis('${cat}_syn_${idx}')">📖 Lihat Sinopsis</span>
+                    <div id="${cat}_syn_${idx}" class="synopsis-text">${item.synopsis}</div>
                 </div>
             `;
         });
@@ -398,8 +496,17 @@
         switchScreen('screenMovies');
     }
 
-    function toggleMovieCheckbox(cardElement) {
-        const checkbox = cardElement.querySelector('input[type="checkbox"]');
+    function toggleSynopsis(id) {
+        const synElem = document.getElementById(id);
+        if (synElem.style.display === "block") {
+            synElem.style.display = "none";
+        } else {
+            synElem.style.display = "block";
+        }
+    }
+
+    function toggleMovieCheckbox(headerElement) {
+        const checkbox = headerElement.querySelector('input[type="checkbox"]');
         checkbox.checked = !checkbox.checked;
     }
 
@@ -416,7 +523,6 @@
             return;
         }
 
-        // Simpan objek film lengkap (title & img)
         userData.selections[currentActiveCategory] = movieData[currentActiveCategory].filter(m => selectedTitles.includes(m.title));
 
         document.getElementById(`badge-${currentActiveCategory}`).innerText = "2/2";
@@ -466,8 +572,11 @@
                 
                 moviesHtml += `
                     <div class="result-movie-item">
-                        ${imgTag}
-                        <span style="font-size: 13px; font-weight: 500;">${item.title}</span>
+                        <div class="result-movie-header">
+                            ${imgTag}
+                            <span style="font-size: 13px; font-weight: 600;">${item.title}</span>
+                        </div>
+                        <div class="result-synopsis">"${item.synopsis}"</div>
                     </div>
                 `;
             });
@@ -482,6 +591,28 @@
 
         document.getElementById('finalResultContent').innerHTML = resHtml;
         switchScreen('screenResult');
+    }
+
+    // Fungsi Pengiriman ke WhatsApp
+    function sendToWhatsApp() {
+        const phoneNumber = "628119391309"; 
+
+        let text = `🍿 *JADWAL NONTON ${userData.name.toUpperCase()}* 🍿\n\n`;
+
+        userData.orders.forEach((cat, index) => {
+            text += `*${index + 1}. ${cat}*\n`;
+            userData.selections[cat].forEach(item => {
+                text += `  • *${item.title}*\n    _${item.synopsis}_\n`;
+            });
+            text += `\n`;
+        });
+
+        text += `✨ *Dibuat dengan Movie Picker* ✨`;
+
+        const encodedText = encodeURIComponent(text);
+        const waUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedText}`;
+
+        window.open(waUrl, '_blank');
     }
 
     function resetAll() {
